@@ -1,35 +1,36 @@
+<h1>Spreedly Airlines</h1>
+
 <section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Phoenix" %></h1>
-  <p>A productive web framework that<br/>does not compromise speed or maintainability.</p>
+  <h1>Flight 1234</h1>
+  <p>BWI - MSY $1,234.01</p>
+  <form id="payment-form">
+    <input type="hidden" name="payment_method_token" id="payment_method_token">
+    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
+  </form>
 </section>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
-    <ul>
-      <li>
-        <a href="https://hexdocs.pm/phoenix/overview.html">Guides &amp; Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix/blob/v1.4/CHANGELOG.md">v1.4 Changelog</a>
-      </li>
-    </ul>
-  </article>
-  <article class="column">
-    <h2>Help</h2>
-    <ul>
-      <li>
-        <a href="https://elixirforum.com/c/phoenix-forum">Forum</a>
-      </li>
-      <li>
-        <a href="https://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on Freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">Twitter @elixirphoenix</a>
-      </li>
-    </ul>
-  </article>
+<section class="phx-hero">
+  <h1>Flight 70</h1>
+  <p>ATL - MEL $4,321.10</p>
+  <form id="payment-form">
+    <input type="hidden" name="payment_method_token" id="payment_method_token">
+    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
+  </form>
 </section>
+
+<section class="phx-hero">
+  <h1>Flight 555</h1>
+  <p>LAX - YVR $894.32</p>
+  <form id="payment-form">
+    <input type="hidden" name="payment_method_token" id="payment_method_token">
+    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
+  </form>
+</section>
+
+<script>
+  function configureDisplayOptions(amount) {
+    SpreedlyExpress.setDisplayOptions({
+      "amount": amount
+    });
+  }
+</script>
