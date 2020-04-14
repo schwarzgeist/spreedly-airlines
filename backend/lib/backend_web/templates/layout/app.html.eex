@@ -17,7 +17,7 @@
     </main>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
     <script>
-      SpreedlyExpress.init("", {
+      SpreedlyExpress.init("H0pJDWkek8qNW8a6uFJCtSS0Kzp", {
         "company_name": "Spreedly Airlines",
         "sidebar_top_description": "We Go There",
         "sidebar_bottom_description": "Your order total today",

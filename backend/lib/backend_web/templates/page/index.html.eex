@@ -3,29 +3,24 @@
 <section class="phx-hero">
   <h1>Flight 1234</h1>
   <p>BWI - MSY $1,234.01</p>
-  <form id="payment-form">
-    <input type="hidden" name="payment_method_token" id="payment_method_token">
-    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
-  </form>
+  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
 </section>
 
 <section class="phx-hero">
   <h1>Flight 70</h1>
   <p>ATL - MEL $4,321.10</p>
-  <form id="payment-form">
-    <input type="hidden" name="payment_method_token" id="payment_method_token">
-    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
-  </form>
+  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
 </section>
 
 <section class="phx-hero">
   <h1>Flight 555</h1>
   <p>LAX - YVR $894.32</p>
-  <form id="payment-form">
-    <input type="hidden" name="payment_method_token" id="payment_method_token">
-    <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
-  </form>
+  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
 </section>
+
+<form id="payment-form" action="https://localhost:44000/api/checkout">
+  <input type="hidden" name="payment_method_token" id="payment_method_token">
+</form>
 
 <script>
   function configureDisplayOptions(amount) {
@@ -33,4 +28,46 @@
       "amount": amount
     });
   }
+
+  SpreedlyExpress.onPaymentMethod(function(token, paymentMethod) {
+    // Send requisite payment method info to backend
+    let tokenField = document.getElementById("payment_method_token");
+    tokenField.setAttribute("value", token);
+
+    let masterForm = document.getElementById('payment-form');
+    // Modify action with payment method token
+    // masterForm.submit();
+
+    post('/api/checkout/', {token: token});
+  });
+
+  /**
+  * sends a request to the specified url from a form. this will change the window location.
+  * @param {string} path the path to send the post request to
+  * @param {object} params the paramiters to add to the url
+  * @param {string} [method=post] the method to use on the form
+  */
+
+  function post(path, params, method='post') {
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    const form = document.createElement('form');
+    form.method = method;
+    form.action = path;
+
+    for (const key in params) {
+      if (params.hasOwnProperty(key)) {
+        const hiddenField = document.createElement('input');
+        hiddenField.type = 'hidden';
+        hiddenField.name = key;
+        hiddenField.value = params[key];
+
+        form.appendChild(hiddenField);
+      }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
 </script>
