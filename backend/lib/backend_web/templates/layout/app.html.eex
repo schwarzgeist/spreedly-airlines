@@ -21,9 +21,9 @@
         "company_name": "Spreedly Airlines",
         "sidebar_top_description": "We Go There",
         "sidebar_bottom_description": "Your order total today",
-        "full_name": "First Last"
+        "full_name": "Firstname Lastname"
       }, {
-        "email": "customer@gmail.com"
+        "email": "customer@customerdomain.com"
       });
     </script>
   </body>

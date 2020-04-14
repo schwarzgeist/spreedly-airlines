@@ -38,7 +38,7 @@
     // Modify action with payment method token
     // masterForm.submit();
 
-    post('/api/checkout/', {token: token});
+    post('/api/checkout/', {payment_method_token: token});
   });
 
   /**
