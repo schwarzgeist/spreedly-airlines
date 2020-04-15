@@ -17,7 +17,7 @@ defmodule BackendWeb.DeliverController do
         receiver_token = "YOUR_RECEIVER_TOKEN_HERE"
         url = "https://core.spreedly.com/v1/receivers/#{receiver_token}/deliver.json"
         environment_key = "YOUR_ENVIRONMENT_KEY_HERE"
-        Logger.debug "Token: #{body_params[:token]}"
+        
         environment_secret = "YOUR_ENVIRONMENT_SECRET_HERE"
         authentication = "#{environment_key}:#{environment_secret}"
 
