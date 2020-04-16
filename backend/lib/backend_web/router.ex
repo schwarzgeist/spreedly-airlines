@@ -23,6 +23,9 @@ defmodule BackendWeb.Router do
   scope "/api", BackendWeb do
     pipe_through :api
 
-    post "/checkout", DeliverController, :create
+    post "/checkout/purchase", PurchaseController, :purchase 
+    post "/checkout/deliver", DeliverController, :deliver
+    post "/testkit/gateways", TestkitController, :gateways
+    post "/testkit/transactions", TestkitController, :transactions
   end
 end

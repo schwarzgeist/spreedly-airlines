@@ -1,4 +1,4 @@
-defmodule BackendWeb.DeliverController do
+defmodule BackendWeb.PurchaseController do
     use BackendWeb, :controller
 
     defp conn_with_status(conn, nil) do
@@ -11,24 +11,30 @@ defmodule BackendWeb.DeliverController do
         |> put_status(:ok)
     end
 
-    def deliver(%Plug.Conn{body_params: body_params} = conn, _body_and_query_params) do
+    def purchase(%Plug.Conn{body_params: body_params} = conn, _body_and_query_params) do
+
+        flights = %{
+            "1234" => 123401,
+            "70" => 432110,
+            "555" => 89432,
+        }
+
+        flight_number = body_params["flight_number"]
+
         payment_method_token = body_params["payment_method_token"]
 
-        receiver_token = System.get_env("RECEIVER_TOKEN")
-        url = "https://core.spreedly.com/v1/receivers/#{receiver_token}/deliver.json"
+        gateway_token = System.get_env("TEST_GATEWAY_TOKEN")
+        url = "https://core.spreedly.com/v1/gateways/#{gateway_token}/purchase.json"
         
         environment_key = System.get_env("ENVIRONMENT_KEY")
         environment_secret = System.get_env("ENVIRONMENT_SECRET")
         authentication = "#{environment_key}:#{environment_secret}"
 
         body = %{
-            delivery: %{
+            transaction: %{
                 payment_method_token: payment_method_token,
-                url: "https://spreedly-echo.herokuapp.com",
-                headers: "Content-Type: application/json",
-                body: Poison.encode!(%{
-                        card_number: "{{ credit_card_number }}"
-                })
+                amount: flights[flight_number],
+                currency_code: "USD"
             }
         }
 
@@ -38,9 +44,6 @@ defmodule BackendWeb.DeliverController do
         options = [ssl: [{:versions, [:'tlsv1.2']}], recv_timeout: 500]
         {:ok, response} = HTTPoison.post(url, body, headers, options)
 
-        IO.puts "RESPONSE========================================"
-        IO.inspect response
-
-        json conn, nil
+        json conn, response.body
     end  
 end

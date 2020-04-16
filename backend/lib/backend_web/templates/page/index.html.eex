@@ -3,30 +3,44 @@
 <section class="phx-hero">
   <h1>Flight 1234</h1>
   <p>BWI - MSY $1,234.01</p>
-  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
+  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('1234');configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
 </section>
 
 <section class="phx-hero">
   <h1>Flight 70</h1>
   <p>ATL - MEL $4,321.10</p>
-  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
+  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('70');configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
 </section>
 
 <section class="phx-hero">
   <h1>Flight 555</h1>
   <p>LAX - YVR $894.32</p>
-  <input type="button" value="Enter Payment Info" onclick="configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
+  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('555');configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
 </section>
 
-<form id="payment-form" action="https://localhost:44000/api/checkout">
+<section class="phx-hero">
+  <input type="button" value="List Gateways" onclick="listGateways();">
+</section>
+
+<form id="payment-form" action="https://localhost:44000/api/checkout/deliver">
   <input type="hidden" name="payment_method_token" id="payment_method_token">
 </form>
 
 <script>
+  var flightNumber = "";
+
+  function assignFlightNumber(number) {
+    flightNumber = number;
+  }
+
   function configureDisplayOptions(amount) {
     SpreedlyExpress.setDisplayOptions({
       "amount": amount
     });
+  }
+
+  function listGateways() {
+    post('api/testkit/gateways');
   }
 
   SpreedlyExpress.onPaymentMethod(function(token, paymentMethod) {
@@ -38,7 +52,8 @@
     // Modify action with payment method token
     // masterForm.submit();
 
-    post('/api/checkout/', {payment_method_token: token});
+    post('/api/checkout/purchase', { flight_number: flightNumber, payment_method_token: token });
+    //post('/api/checkout/deliver', { payment_method_token: token });
   });
 
   /**
