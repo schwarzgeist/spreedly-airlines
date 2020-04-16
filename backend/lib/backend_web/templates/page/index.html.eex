@@ -3,34 +3,70 @@
 <section class="phx-hero">
   <h1>Flight 1234</h1>
   <p>BWI - MSY $1,234.01</p>
-  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('1234');configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Spreedly Airlines)" onclick="assignFlightNumber('1234');configurePaymentHandler('spreedly');configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Expreedlia)" onclick="assignFlightNumber('1234');configurePaymentHandler('expreedlia');configureDisplayOptions('$1,234.01');SpreedlyExpress.openView();">
+  <p><input type="checkbox" id="checkbox1234">Store Card for Future Payments</p>
 </section>
 
 <section class="phx-hero">
   <h1>Flight 70</h1>
   <p>ATL - MEL $4,321.10</p>
-  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('70');configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Spreedly Airlines)" onclick="assignFlightNumber('70');configurePaymentHandler('spreedly');configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Expreedlia)" onclick="assignFlightNumber('70');configurePaymentHandler('expreedlia');configureDisplayOptions('$4,321.10');SpreedlyExpress.openView();">
+  <p><input type="checkbox" id="checkbox70">Store Card for Future Payments</p>
 </section>
 
 <section class="phx-hero">
   <h1>Flight 555</h1>
   <p>LAX - YVR $894.32</p>
-  <input type="button" value="Enter Payment Info" onclick="assignFlightNumber('555');configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Spreedly Airlines)" onclick="assignFlightNumber('555');configurePaymentHandler('spreedly');configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
+  <input type="button" value="Purchase (Expreedlia)" onclick="assignFlightNumber('555');configurePaymentHandler('expreedlia');configureDisplayOptions('$894.32');SpreedlyExpress.openView();">
+  <p><input type="checkbox" id="checkbox555">Store Card for Future Payments</p>
 </section>
 
 <section class="phx-hero">
-  <input type="button" value="List Gateways" onclick="listGateways();">
+  <input type="hidden" value="List Gateways" onclick="listGateways();">
+  <input type="button" value="View Processed Transactions" class="btn btn-primary btn-lg" onclick="listTransactions();" data-toggle="modal" data-target="#alertModal">
 </section>
+
+<!-- Modal -->
+<div id="alertModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title" id="modal-title"></h4>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <p></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <form id="payment-form" action="https://localhost:44000/api/checkout/deliver">
   <input type="hidden" name="payment_method_token" id="payment_method_token">
 </form>
 
-<script>
-  var flightNumber = "";
+<div>
+  <p hidden id="flight_number"></p>
+  <p hidden id="payment_handler"></p>
+</div>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
-  function assignFlightNumber(number) {
-    flightNumber = number;
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<script>
+  function assignFlightNumber(flight_number) {
+    document.getElementById("flight_number").value = flight_number;
   }
 
   function configureDisplayOptions(amount) {
@@ -39,8 +75,52 @@
     });
   }
 
+  function configurePaymentHandler(handler_name) {
+    document.getElementById("payment_handler").value = handler_name;
+  }
+
   function listGateways() {
     post('api/testkit/gateways');
+  }
+
+  function listTransactions() {
+    $.post('/api/testkit/transactions', function(data, status){
+        if (status === 'success'){
+          let response = JSON.parse(data);
+
+          let transactions = '';
+          for (transaction of response.transactions) {
+            transactions += `Transaction Type: ${transaction.transaction_type}<br>`;
+            transactions += `Success: ${transaction.succeeded}<br>`;
+            transactions += `Date/Time: ${transaction.created_at}<br><br>`;
+          }
+          document.getElementById("modal-title").innerHTML = "Previous Transactions";
+          document.getElementById("modal-body").innerHTML = transactions
+        }
+        else {
+          document.getElementById("modal-title").innerHTML = "Error";
+          document.getElementById("modal-body").innerHTML = `There was an error [${status}] \n${data}`
+        }
+    });
+  }
+
+  function retainPaymentMethod(paymentMethodToken) {
+    $.post('/api/testkit/retain', { payment_method_token: paymentMethodToken }, function(data, status){
+        if (status === 'success'){
+          let response = JSON.parse(data);
+          
+          if (response.transaction.succeeded){
+            alert("Payment storage successful");
+          }
+          else {
+            alert("Payment storage failed")
+          }
+        }
+        else {
+          document.getElementById("modal-title").innerHTML = "Error";
+          document.getElementById("modal-body").innerHTML = `There was an error [${status}] \n${data}`
+        }
+    }).then ;
   }
 
   SpreedlyExpress.onPaymentMethod(function(token, paymentMethod) {
@@ -52,9 +132,75 @@
     // Modify action with payment method token
     // masterForm.submit();
 
-    post('/api/checkout/purchase', { flight_number: flightNumber, payment_method_token: token });
-    //post('/api/checkout/deliver', { payment_method_token: token });
+    let flight_number = document.getElementById("flight_number").value
+    let payment_handler = document.getElementById("payment_handler").value
+    let retain_on_success = document.getElementById(`checkbox${flight_number}`).checked
+
+    let request_body = { 
+      flight_number: flight_number, 
+      payment_method_token: token , 
+      retain_on_success: retain_on_success
+    }
+
+    switch (payment_handler) {
+        case 'spreedly':
+        $.post('/api/checkout/purchase', request_body, function(data, status){
+            if (status === 'success'){
+              let details = JSON.parse(data);
+
+              if (details.success === true) {
+                
+                alert('Payment Succeeded');
+
+                // Offer option to retain payment method
+                /* This isn't quite working for some reason...seem to have a problem with payment method key
+                if (!details.retained){
+                  let retain = confirm('Payment Succeeded. Press OK to store this payment method for future use');
+                  if (retain) {
+                    retainPaymentMethod(details.token);
+                  }
+                }
+                else {
+                  alert('Payment Succeeded');
+                }
+                */
+              }
+              else {
+                alert(`Payment Failed: ${JSON.stringify(details.message)}`)
+              }
+              reload();
+            }
+            else {
+              alert(`There was an error [${status}] \n${data}`);
+            }
+        });
+        break;
+        case 'expreedlia':
+          $.post('/api/checkout/deliver', { payment_method_token: token }, function(data, status){
+            if (status === 'success'){
+              alert("Delivery Successful");
+              reload();
+            }
+            else {
+              alert(`There was an error [${status}] ` + '\n' + data);
+            }
+        });
+        break;      
+    }
   });
+
+  function reload() {
+    SpreedlyExpress.unload();
+
+    SpreedlyExpress.init("H0pJDWkek8qNW8a6uFJCtSS0Kzp", {
+      "company_name": "Spreedly Airlines",
+      "sidebar_top_description": "We Go There",
+      "sidebar_bottom_description": "Your order total today",
+      "full_name": "Firstname Lastname"
+    }, {
+      "email": "customer@customerdomain.com"
+    });
+  }
 
   /**
   * sends a request to the specified url from a form. this will change the window location.
@@ -82,6 +228,7 @@
     }
 
     document.body.appendChild(form);
+
     form.submit();
   }
 

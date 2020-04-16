@@ -27,5 +27,7 @@ defmodule BackendWeb.Router do
     post "/checkout/deliver", DeliverController, :deliver
     post "/testkit/gateways", TestkitController, :gateways
     post "/testkit/transactions", TestkitController, :transactions
+    post "/testkit/retain", TestkitController, :retain
+    post "/testkit/retained", TestkitController, :retained
   end
 end

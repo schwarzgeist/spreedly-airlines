@@ -38,9 +38,6 @@ defmodule BackendWeb.DeliverController do
         options = [ssl: [{:versions, [:'tlsv1.2']}], recv_timeout: 500]
         {:ok, response} = HTTPoison.post(url, body, headers, options)
 
-        IO.puts "RESPONSE========================================"
-        IO.inspect response
-
-        json conn, nil
+        json conn, response.body
     end  
 end
