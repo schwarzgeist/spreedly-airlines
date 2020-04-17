@@ -23,10 +23,10 @@ To make a purchase using [PMD](https://docs.spreedly.com/guides/payment-method-d
 If you'd like your gateway to store your data for future use, make sure the checkbox for _Store Card for Future Payments_ is checked.
 
 Once a button has been clicked, the Spreedly Express Payment Form will be presented allowing you to checkout using credit card data.
+
 ![Screen Shot 2020-04-17 at 9 49 51 AM](/img/spreedly_express.png)
 
 The UI will report back on the success/failure of your transaction.
 
 ### Useful data
 To test this, you should use Spreedly [test data](https://docs.spreedly.com/reference/test-data/) to have the environment behave in a predictable way.
-
